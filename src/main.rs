@@ -67,7 +67,7 @@ unsafe fn create_vao(vertices: &Vec<f32>, indices: &Vec<u32>) -> u32 {
 
     gl::BindBuffer(gl::ARRAY_BUFFER, buffer); // binding the VBO
 
-    gl::BufferData(gl::ARRAY_BUFFER, byte_size_of_array(vertices), pointer_to_array(vertices), gl::GL_STATIC_DRAW) // fill with data and transfer to GPU
+    gl::BufferData(gl::ARRAY_BUFFER, byte_size_of_array(vertices), pointer_to_array(vertices), gl::STATIC_DRAW); // fill with data and transfer to GPU
 
     gl::VertexAttribPointer( // configure VAP and enable it
         0, // index
@@ -75,9 +75,9 @@ unsafe fn create_vao(vertices: &Vec<f32>, indices: &Vec<u32>) -> u32 {
         gl::UNSIGNED_INT, 
         gl::FALSE, 
         0, // same entry points. only vertex coordinates
-        0) // same entry points. only vertex coordinates
+        std::ptr::null()); // same entry points. only vertex coordinates
 
-        gl::EnableVertexAttribArray(0) // same index parameter as VertexAttribPointer
+        gl::EnableVertexAttribArray(0); // same index parameter as VertexAttribPointer
 
     // Also, feel free to delete comments :)
 
