@@ -56,6 +56,19 @@ fn offset<T>(n: u32) -> *const c_void {
 unsafe fn create_vao(vertices: &Vec<f32>, indices: &Vec<u32>) -> u32 {
     // Implement me!
 
+    let mut count = 1;
+    let mut array: u32 = 0; 
+    gl::GenVertexArrays(count, &mut array); // generating a VAO
+
+    gl::BindVertexArray(array); // binding the VAO
+
+    let mut buffer: u32 = 0;
+    gl::GenBuffers(count, &mut buffer); // generate a VBO
+
+    gl::BindBuffer(gl::ARRAY_BUFFER, buffer); // binding the VBO
+
+    gl::BufferData(gl::ARRAY_BUFFER, )
+
     // Also, feel free to delete comments :)
 
     // This should:
