@@ -167,6 +167,16 @@ fn main() {
 
         let my_vao = unsafe { 1337 };
 
+        let indices1: Vec<u32> = vec![
+            0, 1, 2, 0,
+        ];
+
+        let vertices1: Vec<f32> = vec![
+            -0.6, -0.6, 0.0, 0.6, -0.6, 0.0, 0.0, 0.6, 0.0,
+        ];
+
+        unsafe {let vao1 = create_vao(&vertices1, &indices1);}
+
 
         // == // Set up your shaders here
 
@@ -177,13 +187,17 @@ fn main() {
         // This snippet is not enough to do the exercise, and will need to be modified (outside
         // of just using the correct path), but it only needs to be called once
 
-        /*
+        
         let simple_shader = unsafe {
             shader::ShaderBuilder::new()
-                .attach_file("./path/to/simple/shader.file")
+                .attach_file("./shaders/simple.vert")
+                .attach_file("./shaders/simple.frag")
                 .link()
         };
-        */
+
+        unsafe {simple_shader.activate();}
+
+        unsafe {gl::DrawElements(gl::TRIANGLES, 9, gl::UNSIGNED_INT, std::ptr::null());}
 
 
         // Used to demonstrate keyboard handling for exercise 2.
