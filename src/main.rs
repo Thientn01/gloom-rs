@@ -62,22 +62,32 @@ unsafe fn create_vao(vertices: &Vec<f32>, indices: &Vec<u32>) -> u32 {
 
     gl::BindVertexArray(array); // binding the VAO
 
-    let mut buffer: u32 = 0;
-    gl::GenBuffers(count, &mut buffer); // generate a VBO
+    let mut buffer1: u32 = 0;
+    gl::GenBuffers(count, &mut buffer1); // generate a VBO
 
-    gl::BindBuffer(gl::ARRAY_BUFFER, buffer); // binding the VBO
+    gl::BindBuffer(gl::ARRAY_BUFFER, buffer1); // binding the VBO
 
     gl::BufferData(gl::ARRAY_BUFFER, byte_size_of_array(vertices), pointer_to_array(vertices), gl::STATIC_DRAW); // fill with data and transfer to GPU
 
     gl::VertexAttribPointer( // configure VAP and enable it
         0, // index
-        2, // 2D point 
-        gl::UNSIGNED_INT, 
-        gl::FALSE, 
+        3, // 2D point 
+        gl::FLOAT, // data type
+        gl::FALSE, // normalise or not
         0, // same entry points. only vertex coordinates
         std::ptr::null()); // same entry points. only vertex coordinates
 
         gl::EnableVertexAttribArray(0); // same index parameter as VertexAttribPointer
+
+    let mut buffer2: u32 = 0;
+
+    gl::GenBuffers(count, &mut buffer2);
+
+    gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, buffer2);
+
+    gl::BufferData(gl::ELEMENT_ARRAY_BUFFER, byte_size_of_array(indices), pointer_to_array(indices), gl::STATIC_DRAW); // fill with data and transfer to GPU
+
+
 
     // Also, feel free to delete comments :)
 
@@ -90,7 +100,7 @@ unsafe fn create_vao(vertices: &Vec<f32>, indices: &Vec<u32>) -> u32 {
     // * Fill it with data
     // * Return the ID of the VAO
 
-    0
+    array
 }
 
 
