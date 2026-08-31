@@ -168,14 +168,14 @@ fn main() {
         let my_vao = unsafe { 1337 };
 
         let indices1: Vec<u32> = vec![
-            0, 1, 2, 0,
+            0, 1, 2,
         ];
 
         let vertices1: Vec<f32> = vec![
             -0.6, -0.6, 0.0, 0.6, -0.6, 0.0, 0.0, 0.6, 0.0,
         ];
 
-        unsafe {let vao1 = create_vao(&vertices1, &indices1);}
+        let vao1 = unsafe{create_vao(&vertices1, &indices1)};
 
 
         // == // Set up your shaders here
@@ -194,10 +194,6 @@ fn main() {
                 .attach_file("./shaders/simple.frag")
                 .link()
         };
-
-        unsafe {simple_shader.activate();}
-
-        unsafe {gl::DrawElements(gl::TRIANGLES, 9, gl::UNSIGNED_INT, std::ptr::null());}
 
 
         // Used to demonstrate keyboard handling for exercise 2.
@@ -265,7 +261,11 @@ fn main() {
 
                 // == // Issue the necessary gl:: commands to draw your scene here
 
+                simple_shader.activate();
 
+                gl::BindVertexArray(vao1);
+
+                gl::DrawElements(gl::TRIANGLES, 9, gl::UNSIGNED_INT, std::ptr::null());
 
             }
 
