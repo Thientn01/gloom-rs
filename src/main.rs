@@ -180,9 +180,18 @@ fn main() {
 
         ];
 
-        let vertex_count = (vertices1.len() / 3) as i32;
+        let indices2: Vec<u32> = vec![
+            0, 1, 2,
+        ];
 
-        let vao1 = unsafe{create_vao(&vertices1, &indices1)};
+        let vertices2: Vec<f32> = vec![
+            0.6, -0.8, -1.2, 0.0 , 0.4, 0.0, -0.8, -0.2, 1.2,
+
+        ];
+
+        let vertex_count = (vertices1.len() / 3) as i32; // remember to adjust verticesX.len()
+
+        let vao1 = unsafe{create_vao(&vertices1, &indices1)}; // remember to adjust &verticesX and &indicesX
 
 
         // == // Set up your shaders here
