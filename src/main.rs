@@ -191,7 +191,7 @@ fn main() {
 
         let vertex_count = (vertices1.len() / 3) as i32; // remember to adjust verticesX.len()
 
-        let vao1 = unsafe{create_vao(&vertices1, &indices1)}; // remember to adjust &verticesX and &indicesX
+        let vao = unsafe{create_vao(&vertices1, &indices1)}; // remember to adjust &verticesX and &indicesX
 
 
         // == // Set up your shaders here
@@ -279,7 +279,7 @@ fn main() {
 
                 simple_shader.activate();
 
-                gl::BindVertexArray(vao1);
+                gl::BindVertexArray(vao);
 
                 gl::DrawElements(gl::TRIANGLES, vertex_count, gl::UNSIGNED_INT, std::ptr::null());
 
