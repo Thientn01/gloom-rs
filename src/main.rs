@@ -168,12 +168,19 @@ fn main() {
         let my_vao = unsafe { 1337 };
 
         let indices1: Vec<u32> = vec![
-            0, 1, 2,
+            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
         ];
 
         let vertices1: Vec<f32> = vec![
-            -0.6, -0.6, 0.0, 0.6, -0.6, 0.0, 0.0, 0.6, 0.0,
+            -0.2, -0.2, 0.0, 0.2, -0.2, 0.0, 0.0, 0.2, 0.0,
+            -0.9, -0.9, 0.0, -0.7, -0.7, 0.0, -0.8, 0.6, 0.0,
+            0.6, 0.6, 0.0, 0.8, 0.6, 0.0, 0.7, 0.7, 0.0,
+            0.6, -0.6, 0.0, 0.8, -0.5, 0.0, 0.6, -0.4, 0.0,
+            -0.4, 0.6, 0.0, -0.2, 0.7, 0.0, -0.55, 0.88, 0.0,
+
         ];
+
+        let vertex_count = (vertices1.len() / 3) as i32;
 
         let vao1 = unsafe{create_vao(&vertices1, &indices1)};
 
@@ -265,7 +272,7 @@ fn main() {
 
                 gl::BindVertexArray(vao1);
 
-                gl::DrawElements(gl::TRIANGLES, 9, gl::UNSIGNED_INT, std::ptr::null());
+                gl::DrawElements(gl::TRIANGLES, vertex_count, gl::UNSIGNED_INT, std::ptr::null());
 
             }
 
