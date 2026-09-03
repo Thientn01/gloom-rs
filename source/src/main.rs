@@ -20,7 +20,7 @@ use glutin::event_loop::ControlFlow;
 
 // initial window size
 const INITIAL_SCREEN_W: u32 = 800;
-const INITIAL_SCREEN_H: u32 = 800; // from 600 to 800
+const INITIAL_SCREEN_H: u32 = 600;
 
 // == // Helper functions to make interacting with OpenGL a little bit prettier. You *WILL* need these! // == //
 
@@ -189,147 +189,9 @@ fn main() {
 
         ];
 
-        // UNCOMMENT THIS SECTION FOR TRIANGULAR CHECKER BOARD
-        /*
-        let mut vertices3: Vec<f32> = Vec::new();
-        let mut tempx: f32 = 0.0;
-        let mut tempy: f32 = 0.0;
-        let mut temp_vertex: u32 = 0;
-        let mut indices3: Vec<u32> = Vec::new();
-        let mut odd: i32 = -1;
+        let vertex_count = (vertices1.len() / 3) as i32; // remember to adjust verticesX.len()
 
-        for i in -12..11 {
-            tempy = (i as f32) / 10.0;
-            odd = -odd;
-
-            for j in -12..11 {
-                tempx = (j as f32) / 10.0;
-                if odd == 1 {
-                    vertices3.push(tempx);
-                    vertices3.push(tempy);
-                    vertices3.push(0.0);
-                    indices3.push(temp_vertex);
-                    temp_vertex = temp_vertex + 1;
-
-                    vertices3.push(tempx + 0.1);
-                    vertices3.push(tempy);
-                    vertices3.push(0.0);
-                    indices3.push(temp_vertex);
-                    temp_vertex = temp_vertex + 1;
-
-                    vertices3.push(tempx + 0.05);
-                    vertices3.push(tempy + 0.1);
-                    vertices3.push(0.0);
-                    indices3.push(temp_vertex);
-                    temp_vertex = temp_vertex + 1;
-                }
-
-                else {
-                    vertices3.push(tempx + 0.05);
-                    vertices3.push(tempy);
-                    vertices3.push(0.0);
-                    indices3.push(temp_vertex);
-                    temp_vertex = temp_vertex + 1;
-
-                    vertices3.push(tempx + 0.15);
-                    vertices3.push(tempy);
-                    vertices3.push(0.0);
-                    indices3.push(temp_vertex);
-                    temp_vertex = temp_vertex + 1;
-
-                    vertices3.push(tempx + 0.1);
-                    vertices3.push(tempy + 0.1);
-                    vertices3.push(0.0);
-                    indices3.push(temp_vertex);
-                    temp_vertex = temp_vertex + 1;
-                }
-                
-        }
-
-        }
-
-        println!("{:?}", vertices3);
-        println!("{:?}", indices3);
-
-        */
-
-        use std::f32::consts::PI;
-
-        /* UNCOMMENT TO DRAW A CIRCLE
-
-        let mut angle: f32 = 0.0;
-        let mut radius: f32 = 0.8;
-        let mut triangle_size: f32 = 0.01;
-        let mut angle_size: f32 = 0.0001;
-        let mut vertices4: Vec<f32> = Vec::new();
-        let mut temp_vertex: u32 = 0;
-        let mut indices4: Vec<u32> = Vec::new();
-
-        while angle < (2.0 * PI) {
-            vertices4.push(radius * angle.cos());
-            vertices4.push(radius * angle.sin());
-            vertices4.push(0.0);
-            indices4.push(temp_vertex);
-            temp_vertex = temp_vertex + 1;
-
-            vertices4.push(radius * angle.cos() + triangle_size);
-            vertices4.push(radius * angle.sin());
-            vertices4.push(0.0);
-            indices4.push(temp_vertex);
-            temp_vertex = temp_vertex + 1;
-
-            vertices4.push(radius * angle.cos() + (triangle_size/2.0));
-            vertices4.push(radius * angle.sin() + triangle_size);
-            vertices4.push(0.0);
-            indices4.push(temp_vertex);
-            temp_vertex = temp_vertex + 1;
-
-            angle = angle + angle_size;
-        }
-
-        */ 
-
-        let mut angle: f32 = 0.0;
-        let mut radius: f32 = 0.5;
-        let mut triangle_size: f32 = 0.01;
-        let mut angle_size: f32 = 0.0001;
-        let mut vertices5: Vec<f32> = Vec::new();
-        let mut temp_vertex: u32 = 0;
-        let mut indices5: Vec<u32> = Vec::new();
-        let mut spiral_factor: f32 = 0.000006;
-        let mut spiral_number: f32 = 8.0;
-        let mut spiral_offset_y: f32 = -0.95;
-
-        while angle < (2.0 * PI * spiral_number) {
-            vertices5.push(radius * angle.cos());
-            vertices5.push(radius * angle.sin() + spiral_offset_y);
-            vertices5.push(0.0);
-            indices5.push(temp_vertex);
-            temp_vertex = temp_vertex + 1;
-
-            vertices5.push(radius * angle.cos() + triangle_size);
-            vertices5.push(radius * angle.sin() + spiral_offset_y);
-            vertices5.push(0.0);
-            indices5.push(temp_vertex);
-            temp_vertex = temp_vertex + 1;
-
-            vertices5.push(radius * angle.cos() + (triangle_size/2.0));
-            vertices5.push(radius * angle.sin() + spiral_offset_y + triangle_size);
-            vertices5.push(0.0);
-            indices5.push(temp_vertex);
-            temp_vertex = temp_vertex + 1;
-
-            angle = angle + angle_size;
-            spiral_offset_y = spiral_offset_y + spiral_factor;
-        }
-
-
-        
-        let vertex_count = (vertices5.len() / 3) as i32; // remember to adjust verticesX.len()
-
-        println!("{:?}", vertex_count);
-
-        let vao = unsafe{create_vao(&vertices5, &indices5)}; // remember to adjust &verticesX and &indicesX
+        let vao = unsafe{create_vao(&vertices1, &indices1)}; // remember to adjust &verticesX and &indicesX
 
 
         // == // Set up your shaders here
