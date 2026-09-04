@@ -20,7 +20,7 @@ use glutin::event_loop::ControlFlow;
 
 // initial window size
 const INITIAL_SCREEN_W: u32 = 800;
-const INITIAL_SCREEN_H: u32 = 800; // from 600 to 800
+const INITIAL_SCREEN_H: u32 = 800; // Changed from 600 to 800 for drawing the circle
 
 // == // Helper functions to make interacting with OpenGL a little bit prettier. You *WILL* need these! // == //
 
@@ -58,24 +58,24 @@ unsafe fn create_vao(vertices: &Vec<f32>, indices: &Vec<u32>) -> u32 {
 
     let mut count = 1;
     let mut array: u32 = 0; 
-    gl::GenVertexArrays(count, &mut array); // generating a VAO
+    gl::GenVertexArrays(count, &mut array);    // generating a VAO
 
-    gl::BindVertexArray(array); // binding the VAO
+    gl::BindVertexArray(array);                // binding the VAO
 
     let mut buffer1: u32 = 0;
-    gl::GenBuffers(count, &mut buffer1); // generate a VBO
+    gl::GenBuffers(count, &mut buffer1);       // generate a VBO
 
     gl::BindBuffer(gl::ARRAY_BUFFER, buffer1); // binding the VBO
 
     gl::BufferData(gl::ARRAY_BUFFER, byte_size_of_array(vertices), pointer_to_array(vertices), gl::STATIC_DRAW); // fill with data and transfer to GPU
 
-    gl::VertexAttribPointer( // configure VAP and enable it
-        0, // index
-        3, // 2D point 
-        gl::FLOAT, // data type
-        gl::FALSE, // normalise or not
-        0, // same entry points. only vertex coordinates
-        std::ptr::null()); // same entry points. only vertex coordinates
+    gl::VertexAttribPointer(            // configure VAP and enable it
+        0,                              // index
+        3,                              // 3D point 
+        gl::FLOAT,                      // data type
+        gl::FALSE,                      // normalise or not
+        0,                              // same entry points. only vertex coordinates
+        std::ptr::null());              // same entry points. only vertex coordinates
 
         gl::EnableVertexAttribArray(0); // same index parameter as VertexAttribPointer
 
@@ -100,7 +100,7 @@ unsafe fn create_vao(vertices: &Vec<f32>, indices: &Vec<u32>) -> u32 {
     // * Fill it with data
     // * Return the ID of the VAO
 
-    array
+    array // Return the ID of the VAO
 }
 
 
@@ -172,7 +172,7 @@ fn main() {
         ];
 
         let vertices1: Vec<f32> = vec![
-            -0.2, -0.2, 0.0, 0.2, -0.2, 0.0, 0.0, 0.2, 0.0,
+            -0.2, -0.2, 0.0, 0.2, -0.2, 0.0, 0.0, 0.2, 0.0,    
             -0.9, -0.9, 0.0, -0.7, -0.7, 0.0, -0.8, 0.6, 0.0,
             0.6, 0.6, 0.0, 0.8, 0.6, 0.0, 0.7, 0.7, 0.0,
             0.6, -0.6, 0.0, 0.8, -0.5, 0.0, 0.6, -0.4, 0.0,
@@ -325,7 +325,7 @@ fn main() {
 
 
         
-        let vertex_count = (vertices5.len() / 3) as i32; // remember to adjust verticesX.len()
+        let vertex_count = (vertices5.len() / 3) as i32;     // remember to adjust verticesX.len()
 
         println!("{:?}", vertex_count);
 
@@ -342,7 +342,7 @@ fn main() {
         // of just using the correct path), but it only needs to be called once
 
         
-        let simple_shader = unsafe {
+        let simple_shader = unsafe { // load the pair
             shader::ShaderBuilder::new()
                 .attach_file("./shaders/simple.vert")
                 .attach_file("./shaders/simple.frag")
@@ -415,7 +415,7 @@ fn main() {
 
                 // == // Issue the necessary gl:: commands to draw your scene here
 
-                simple_shader.activate();
+                simple_shader.activate(); // link the pair
 
                 gl::BindVertexArray(vao);
 
