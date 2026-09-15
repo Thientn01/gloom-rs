@@ -20,7 +20,7 @@ use glutin::event_loop::ControlFlow;
 
 // initial window size
 const INITIAL_SCREEN_W: u32 = 800;
-const INITIAL_SCREEN_H: u32 = 800; // Changed from 600 to 800 for drawing the circle
+const INITIAL_SCREEN_H: u32 = 600; // Changed from 600 to 800 for drawing the circle
 
 // == // Helper functions to make interacting with OpenGL a little bit prettier. You *WILL* need these! // == //
 
@@ -53,7 +53,7 @@ fn offset<T>(n: u32) -> *const c_void {
 
 
 // == // Generate your VAO here
-unsafe fn create_vao(vertices: &Vec<f32>, indices: &Vec<u32>) -> u32 {
+unsafe fn create_vao(vertices: &Vec<f32>, indices: &Vec<u32>, colors: &Vec<f32>) -> u32 {
     // Implement me!
 
     let mut count = 1;
@@ -77,7 +77,7 @@ unsafe fn create_vao(vertices: &Vec<f32>, indices: &Vec<u32>) -> u32 {
         0,                              // same entry points. only vertex coordinates
         std::ptr::null());              // same entry points. only vertex coordinates
 
-        gl::EnableVertexAttribArray(0); // same index parameter as VertexAttribPointer
+        gl::EnableVertexAttribArray(0); // same index parameter as VertexAttribPointer for vertices
 
     let mut buffer2: u32 = 0;
 
@@ -87,7 +87,22 @@ unsafe fn create_vao(vertices: &Vec<f32>, indices: &Vec<u32>) -> u32 {
 
     gl::BufferData(gl::ELEMENT_ARRAY_BUFFER, byte_size_of_array(indices), pointer_to_array(indices), gl::STATIC_DRAW); // fill with data and transfer to GPU
 
+    let mut color: u32 = 0;
+    gl::GenBuffers(count, &mut color);       // generate a VBO
 
+    gl::BindBuffer(gl::ARRAY_BUFFER, color); // binding the VBO
+
+    gl::BufferData(gl::ARRAY_BUFFER, byte_size_of_array(colors), pointer_to_array(colors), gl::STATIC_DRAW); // fill with data and transfer to GPU
+
+    gl::VertexAttribPointer(            // configure VAP and enable it
+        1,                              // index
+        4,                              // RGBA
+        gl::FLOAT,                      // data type
+        gl::FALSE,                      // normalise or not
+        0,                              // same entry points. only color "coordinates"
+        std::ptr::null());              // same entry points. only color "coordinates"
+
+        gl::EnableVertexAttribArray(1); // same index parameter as VertexAttribPointer for color
 
     // Also, feel free to delete comments :)
 
@@ -168,7 +183,7 @@ fn main() {
         let my_vao = unsafe { 1337 };
 
         let indices1: Vec<u32> = vec![
-            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
         ];
 
         let vertices1: Vec<f32> = vec![
@@ -178,6 +193,24 @@ fn main() {
             0.6, -0.6, 0.0, 0.8, -0.5, 0.0, 0.6, -0.4, 0.0,
             -0.4, 0.6, 0.0, -0.2, 0.7, 0.0, -0.55, 0.88, 0.0,
 
+        ];
+
+        let colors1: Vec<f32> = vec![
+            0.4, 0.6, 0.9, 1.0, 
+            0.5, 0.3, 0.6, 1.0, 
+            0.1, 0.9, 0.1, 1.0, 
+            0.3, 0.7, 0.9, 1.0, 
+            0.7, 0.5, 0.3, 1.0, 
+            0.9, 0.6, 0.5, 1.0, 
+            0.4, 0.6, 0.9, 1.0, 
+            0.6, 0.3, 0.7, 1.0, 
+            0.7, 0.5, 0.4, 1.0, 
+            0.8, 0.7, 0.9, 1.0, 
+            0.4, 0.1, 0.9, 1.0, 
+            0.3, 0.2, 0.2, 1.0, 
+            0.5, 0.6, 0.3, 1.0, 
+            0.1, 0.7, 0.5, 1.0, 
+            0.1, 0.6, 0.1, 1.0, 
         ];
 
         let indices2: Vec<u32> = vec![
@@ -289,6 +322,8 @@ fn main() {
 
         */ 
 
+        /* UNCOMMENT TO DRAW A spiral
+
         let mut angle: f32 = 0.0;
         let mut radius: f32 = 0.5;
         let mut triangle_size: f32 = 0.01;
@@ -323,13 +358,14 @@ fn main() {
             spiral_offset_y = spiral_offset_y + spiral_factor;
         }
 
+        */
 
         
-        let vertex_count = (vertices5.len() / 3) as i32;     // remember to adjust verticesX.len()
+        let vertex_count = (vertices1.len() / 3) as i32;     // remember to adjust verticesX.len()
 
         println!("{:?}", vertex_count);
 
-        let vao = unsafe{create_vao(&vertices5, &indices5)}; // remember to adjust &verticesX and &indicesX
+        let vao = unsafe{create_vao(&vertices1, &indices1, &colors1)}; // remember to adjust &verticesX and &indicesX
 
 
         // == // Set up your shaders here
