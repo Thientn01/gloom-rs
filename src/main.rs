@@ -412,6 +412,15 @@ fn main() {
         // Used to demonstrate keyboard handling for exercise 2.
         let mut _arbitrary_number = 0.0; // feel free to remove
 
+        let mut cameraX: f32 = 0.0;
+        let mut cameraY: f32 = 0.0;
+        let mut cameraZ: f32 = -3.0;
+        let mut yaw: f32 = 0.0;
+        let mut pitch: f32 = 0.0;
+
+        let mut scrollfactor: f32 = 1.3;
+        let mut rotationfactor: f32 = 9.0;
+
 
         // The main rendering loop
         let first_frame_time = std::time::Instant::now();
@@ -434,6 +443,9 @@ fn main() {
                 }
             }
 
+            
+
+
             // Handle keyboard input
             if let Ok(keys) = pressed_keys.lock() {
                 for key in keys.iter() {
@@ -441,13 +453,37 @@ fn main() {
                         // The `VirtualKeyCode` enum is defined here:
                         //    https://docs.rs/winit/0.25.0/winit/event/enum.VirtualKeyCode.html
 
+                        
                         VirtualKeyCode::A => {
-                            _arbitrary_number += delta_time;
+                            cameraX -= scrollfactor * delta_time; // from _arbitrary_number to cameraX
                         }
                         VirtualKeyCode::D => {
-                            _arbitrary_number -= delta_time;
+                            cameraX += scrollfactor * delta_time;
                         }
-
+                        VirtualKeyCode::W => {
+                            cameraZ += scrollfactor * delta_time;
+                        }
+                        VirtualKeyCode::S => {
+                            cameraZ -= scrollfactor * delta_time;
+                        }
+                        VirtualKeyCode::LShift => {
+                            cameraY -= scrollfactor * delta_time;
+                        }
+                        VirtualKeyCode::Space => {
+                            cameraY += scrollfactor * delta_time;
+                        }
+                        VirtualKeyCode::Left => {
+                            yaw += rotationfactor * delta_time;
+                        }
+                        VirtualKeyCode::Right => {
+                            yaw -= rotationfactor * delta_time;
+                        }
+                        VirtualKeyCode::Down => {
+                            pitch -= rotationfactor * delta_time;
+                        }
+                        VirtualKeyCode::Up => {
+                            pitch += rotationfactor * delta_time;
+                        }
 
                         // default handler:
                         _ => { }
@@ -472,7 +508,11 @@ fn main() {
                 0.0, 0.0, 0.0, 1.0
             );
 
-            let translationMatrix: glm::Mat4 = glm::translation(&glm::vec3(0.0, 0.0, -3.0));
+            let translationMatrix: glm::Mat4 = glm::translation(&glm::vec3(cameraX, cameraY, cameraZ));
+
+            let yawMatrix: glm::Mat4 = glm::rotation(yaw.to_radians() ,&glm::vec3(0.0, 1.0, 0.0));
+
+            let pitchMatrix: glm::Mat4 = glm::rotation(pitch.to_radians() ,&glm::vec3(1.0, 0.0, 0.0));
 
             let projectionMatrix: glm::Mat4 = glm::perspective(
                 window_aspect_ratio,
@@ -481,7 +521,8 @@ fn main() {
                 100.0,
             );
 
-            let combinedMatrix: glm::Mat4 = projectionMatrix * translationMatrix * transformationMatrix; 
+
+            let combinedMatrix: glm::Mat4 = projectionMatrix * pitchMatrix * yawMatrix * translationMatrix * transformationMatrix; 
 
 
             unsafe {
