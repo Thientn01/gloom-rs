@@ -465,6 +465,24 @@ fn main() {
 
             // == // Please compute camera transforms here (exercise 2 & 3)
 
+            let transformationMatrix = glm::mat4(
+                1.0, 0.0, 0.0, 0.0,
+                0.0, 1.0, 0.0, 0.0,
+                0.0, 0.0, 1.0, 0.0,
+                0.0, 0.0, 0.0, 1.0
+            );
+
+            let translationMatrix: glm::Mat4 = glm::translation(&glm::vec3(0.0, 0.0, -3.0));
+
+            let projectionMatrix: glm::Mat4 = glm::perspective(
+                window_aspect_ratio,
+                45.0_f32.to_radians(),
+                1.0,
+                100.0,
+            );
+
+            let combinedMatrix: glm::Mat4 = projectionMatrix * translationMatrix * transformationMatrix; 
+
 
             unsafe {
                 // Clear the color and depth buffers
@@ -476,9 +494,11 @@ fn main() {
 
                 simple_shader.activate(); // link the pair
 
+                gl::UniformMatrix4fv(2, 1, gl::FALSE, combinedMatrix.as_ptr()); // location to matrix in vertex shader
+
                 gl::BindVertexArray(vao);
 
-                gl::DrawElements(gl::TRIANGLES, vertex_count, gl::UNSIGNED_INT, std::ptr::null());
+                gl::DrawElements(gl::TRIANGLES, vertex_count, gl::UNSIGNED_INT, std::ptr::null()); // rendering the scene
 
             }
 
