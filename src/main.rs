@@ -16,6 +16,7 @@ mod shader;
 mod util;
 mod mesh; // task 1a) assignment 3
 mod scene_graph;
+mod toolbox;
 use scene_graph::SceneNode;
 
 use glutin::event::{Event, WindowEvent, DeviceEvent, KeyboardInput, ElementState::{Pressed, Released}, VirtualKeyCode::{self, *}};
@@ -137,6 +138,70 @@ unsafe fn create_vao(vertices: &Vec<f32>, normals: &Vec<f32>, indices: &Vec<u32>
     // * Return the ID of the VAO
 
     array // Return the ID of the VAO
+}
+
+unsafe fn draw_scene(node: &scene_graph::SceneNode, view_projection_matrix: &glm::Mat4, transformation_so_far: &glm::Mat4) {
+    let mut transformation = glm::identity();
+
+    transformation = glm::translate(
+        &transformation,
+        &node.position,
+    );
+
+    transformation = glm::translate(
+        &transformation,
+        &node.reference_point,
+    );
+
+    transformation = glm::rotate_x(
+        &transformation,
+        node.rotation.x,
+    );
+
+    transformation = glm::rotate_y(
+        &transformation,
+        node.rotation.y,
+    );
+
+    transformation = glm::rotate_z(
+        &transformation,
+        node.rotation.z,
+    );
+
+    transformation = glm::translate(
+        &transformation,
+        &(-node.reference_point),
+    );
+
+    let current_transformation = transformation_so_far * transformation;
+
+    let mvp_matrix = view_projection_matrix * current_transformation;
+
+    if node.vao_id != 0 && node.index_count > 0 {
+        gl::UniformMatrix4fv(
+            3,
+            1,
+            gl::FALSE,
+            mvp_matrix.as_ptr(),
+        );
+
+        gl::BindVertexArray(node.vao_id);
+
+        gl::DrawElements(
+            gl::TRIANGLES,
+            node.index_count,
+            gl::UNSIGNED_INT,
+            std::ptr::null(),
+        );
+    }
+
+    for &child in &node.children {
+        draw_scene(
+            &*child,
+            view_projection_matrix,
+            &current_transformation
+            );
+        }
 }
 
 
@@ -490,6 +555,9 @@ fn main() {
             helicopter.tail_rotor.index_count,
         );
 
+        main_rotor_node.reference_point = glm::vec3(0.0, 0.0, 0.0);
+        tail_rotor_node.reference_point = glm::vec3(0.35, 2.3, 10.4);
+
         helicopter_root.add_child(&body_node);
         helicopter_root.add_child(&door_node);
         helicopter_root.add_child(&main_rotor_node);
@@ -533,12 +601,14 @@ fn main() {
         // The main rendering loop
         let first_frame_time = std::time::Instant::now();
         let mut previous_frame_time = first_frame_time;
+
         loop {
             // Compute time passed since the previous frame and since the start of the program
             let now = std::time::Instant::now();
             let elapsed = now.duration_since(first_frame_time).as_secs_f32();
             let delta_time = now.duration_since(previous_frame_time).as_secs_f32();
             previous_frame_time = now;
+            let heading = toolbox::simple_heading_animation(elapsed);
 
             // Handle resize events
             if let Ok(mut new_size) = window_size.lock() {
@@ -643,7 +713,9 @@ fn main() {
 
                 simple_shader.activate(); // link the pair
 
-                gl::UniformMatrix4fv(3, 1, gl::FALSE, combinedMatrix.as_ptr()); // location to matrix in vertex shader
+                // gl::UniformMatrix4fv(3, 1, gl::FALSE, combinedMatrix.as_ptr()); // location to matrix in vertex shader
+
+                /*
 
                 gl::BindVertexArray(vao);
                 gl::DrawElements(
@@ -683,6 +755,26 @@ fn main() {
                     tail_rotor_index_count,
                     gl::UNSIGNED_INT,
                     std::ptr::null()
+                );
+
+                */
+
+                main_rotor_node.rotation.y = elapsed * 5.0;
+                tail_rotor_node.rotation.x = elapsed * 8.0;
+
+                helicopter_root.position.x = heading.x;
+                helicopter_root.position.z = heading.z;
+
+                helicopter_root.rotation.x = heading.pitch;
+                helicopter_root.rotation.y = heading.yaw;
+                helicopter_root.rotation.z = heading.roll;
+
+                let identity_matrix: glm::Mat4 = glm::identity();
+
+                draw_scene(
+                    &scene_root,
+                    &combinedMatrix,
+                    &identity_matrix,
                 );
             }
 
