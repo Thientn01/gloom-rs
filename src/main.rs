@@ -14,6 +14,9 @@ use std::sync::{Mutex, Arc, RwLock};
 
 mod shader;
 mod util;
+mod mesh; // task 1a) assignment 3
+mod scene_graph;
+use scene_graph::SceneNode;
 
 use glutin::event::{Event, WindowEvent, DeviceEvent, KeyboardInput, ElementState::{Pressed, Released}, VirtualKeyCode::{self, *}};
 use glutin::event_loop::ControlFlow;
@@ -53,7 +56,7 @@ fn offset<T>(n: u32) -> *const c_void {
 
 
 // == // Generate your VAO here
-unsafe fn create_vao(vertices: &Vec<f32>, indices: &Vec<u32>, colors: &Vec<f32>) -> u32 {
+unsafe fn create_vao(vertices: &Vec<f32>, normals: &Vec<f32>, indices: &Vec<u32>, colors: &Vec<f32>) -> u32 {
     // Implement me!
 
     let mut count = 1;
@@ -79,6 +82,24 @@ unsafe fn create_vao(vertices: &Vec<f32>, indices: &Vec<u32>, colors: &Vec<f32>)
 
         gl::EnableVertexAttribArray(0); // same index parameter as VertexAttribPointer for vertices
 
+
+    let mut normal: u32 = 0;
+    gl::GenBuffers(count, &mut normal);       // generate a VBO
+
+    gl::BindBuffer(gl::ARRAY_BUFFER, normal); // binding the VBO
+
+    gl::BufferData(gl::ARRAY_BUFFER, byte_size_of_array(normals), pointer_to_array(normals), gl::STATIC_DRAW); // fill with data and transfer to GPU
+
+    gl::VertexAttribPointer(            // configure VAP and enable it
+        1,                              // index
+        3,                              // 3D point 
+        gl::FLOAT,                      // data type
+        gl::FALSE,                      // normalise or not
+        0,                              // same entry points. only vertex coordinates
+        std::ptr::null());              // same entry points. only vertex coordinates
+
+        gl::EnableVertexAttribArray(1); // same index parameter as VertexAttribPointer for normal
+
     let mut buffer2: u32 = 0;
 
     gl::GenBuffers(count, &mut buffer2);
@@ -95,14 +116,14 @@ unsafe fn create_vao(vertices: &Vec<f32>, indices: &Vec<u32>, colors: &Vec<f32>)
     gl::BufferData(gl::ARRAY_BUFFER, byte_size_of_array(colors), pointer_to_array(colors), gl::STATIC_DRAW); // fill with data and transfer to GPU
 
     gl::VertexAttribPointer(            // configure VAP and enable it
-        1,                              // index
+        2,                              // index
         4,                              // RGBA
         gl::FLOAT,                      // data type
         gl::FALSE,                      // normalise or not
         0,                              // same entry points. only color "coordinates"
         std::ptr::null());              // same entry points. only color "coordinates"
 
-        gl::EnableVertexAttribArray(1); // same index parameter as VertexAttribPointer for color
+        gl::EnableVertexAttribArray(2); // same index parameter as VertexAttribPointer for color
 
     // Also, feel free to delete comments :)
 
@@ -182,6 +203,7 @@ fn main() {
 
         let my_vao = unsafe { 1337 };
 
+        /*
         let indices1: Vec<u32> = vec![
             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
         ];
@@ -244,6 +266,7 @@ fn main() {
             0.1, 0.7, 0.5, 1.0, 
             0.1, 0.6, 0.1, 1.0, 
         ];
+        */
 
         // UNCOMMENT THIS SECTION FOR TRIANGULAR CHECKER BOARD
         /*
@@ -383,13 +406,98 @@ fn main() {
 
         */
 
+        let terrain = mesh::Terrain::load("resources/lunarsurface.obj");
+        let helicopter = mesh::Helicopter::load("resources/helicopter.obj");
+
         
-        let vertex_count = (vertices10.len() / 3) as i32;     // remember to adjust verticesX.len()
+        let terrain_index_count = terrain.index_count;     // remember to adjust verticesX.len()
 
-        println!("{:?}", vertex_count);
+        let body_index_count = helicopter.body.index_count;
+        let door_index_count = helicopter.door.index_count;
+        let main_rotor_index_count = helicopter.main_rotor.index_count;
+        let tail_rotor_index_count = helicopter.tail_rotor.index_count;
 
-        let vao = unsafe{create_vao(&vertices10, &indices10, &colors10)}; // remember to adjust &verticesX and &indicesX
+        let vao = unsafe {
+            create_vao(
+                &terrain.vertices, 
+                &terrain.normals, 
+                &terrain.indices, 
+                &terrain.colors)
+        }; // remember to adjust &verticesX and &indicesX
 
+        let helicopter_body_vao = unsafe {
+            create_vao(
+                &helicopter.body.vertices,
+                &helicopter.body.normals,
+                &helicopter.body.indices,
+                &helicopter.body.colors
+            )
+        };
+
+        let helicopter_door_vao = unsafe {
+            create_vao(
+                &helicopter.door.vertices,
+                &helicopter.door.normals,
+                &helicopter.door.indices,
+                &helicopter.door.colors
+            )
+        };
+
+        let helicopter_main_rotor_vao = unsafe {
+            create_vao(
+                &helicopter.main_rotor.vertices,
+                &helicopter.main_rotor.normals,
+                &helicopter.main_rotor.indices,
+                &helicopter.main_rotor.colors
+            )
+        };
+
+        let helicopter_tail_rotor_vao = unsafe {
+            create_vao(
+                &helicopter.tail_rotor.vertices,
+                &helicopter.tail_rotor.normals,
+                &helicopter.tail_rotor.indices,
+                &helicopter.tail_rotor.colors
+            )
+        };
+
+        let mut scene_root = SceneNode::new();
+
+        let mut terrain_node = SceneNode::from_vao(
+            vao,
+            terrain.index_count,
+        );
+
+        let mut helicopter_root = SceneNode::new();
+
+        let mut body_node = SceneNode::from_vao(
+            helicopter_body_vao,
+            helicopter.body.index_count,
+        );
+
+        let mut door_node = SceneNode::from_vao(
+            helicopter_door_vao,
+            helicopter.door.index_count,
+        );
+
+        let mut main_rotor_node = SceneNode::from_vao(
+            helicopter_main_rotor_vao,
+            helicopter.main_rotor.index_count,
+        );
+
+        let mut tail_rotor_node = SceneNode::from_vao(
+            helicopter_tail_rotor_vao,
+            helicopter.tail_rotor.index_count,
+        );
+
+        helicopter_root.add_child(&body_node);
+        helicopter_root.add_child(&door_node);
+        helicopter_root.add_child(&main_rotor_node);
+        helicopter_root.add_child(&tail_rotor_node);
+
+        terrain_node.add_child(&helicopter_root);
+
+        scene_root.add_child(&terrain_node);
 
         // == // Set up your shaders here
 
@@ -518,7 +626,7 @@ fn main() {
                 window_aspect_ratio,
                 45.0_f32.to_radians(),
                 1.0,
-                100.0,
+                1000.0,
             );
 
 
@@ -535,12 +643,47 @@ fn main() {
 
                 simple_shader.activate(); // link the pair
 
-                gl::UniformMatrix4fv(2, 1, gl::FALSE, combinedMatrix.as_ptr()); // location to matrix in vertex shader
+                gl::UniformMatrix4fv(3, 1, gl::FALSE, combinedMatrix.as_ptr()); // location to matrix in vertex shader
 
                 gl::BindVertexArray(vao);
+                gl::DrawElements(
+                    gl::TRIANGLES, 
+                    terrain_index_count, 
+                    gl::UNSIGNED_INT, 
+                    std::ptr::null()
+                ); // rendering the scene
+                
+                gl::BindVertexArray(helicopter_body_vao);
+                gl::DrawElements(
+                    gl::TRIANGLES,
+                    body_index_count,
+                    gl::UNSIGNED_INT,
+                    std::ptr::null()
+                );
 
-                gl::DrawElements(gl::TRIANGLES, vertex_count, gl::UNSIGNED_INT, std::ptr::null()); // rendering the scene
+                gl::BindVertexArray(helicopter_door_vao);
+                gl::DrawElements(
+                    gl::TRIANGLES,
+                    door_index_count,
+                    gl::UNSIGNED_INT,
+                    std::ptr::null()
+                );
 
+                gl::BindVertexArray(helicopter_main_rotor_vao);
+                gl::DrawElements(
+                    gl::TRIANGLES,
+                    main_rotor_index_count,
+                    gl::UNSIGNED_INT,
+                    std::ptr::null()
+                );
+
+                gl::BindVertexArray(helicopter_tail_rotor_vao);
+                gl::DrawElements(
+                    gl::TRIANGLES,
+                    tail_rotor_index_count,
+                    gl::UNSIGNED_INT,
+                    std::ptr::null()
+                );
             }
 
             // Display the new color buffer on the display
